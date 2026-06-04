@@ -25,3 +25,12 @@ export interface ChangePasswordDto {
   currentPassword: string;
   newPassword: string;
 }
+
+export interface RequestEmailOtpDto {
+  email: string;
+}
+
+export interface VerifyEmailDto {
+  email: string;
+  otp: string;
+}

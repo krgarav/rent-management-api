@@ -6,6 +6,8 @@ import {
   LogoutDto,
   RefreshTokenDto,
   RegisterDto,
+  RequestEmailOtpDto,
+  VerifyEmailDto,
 } from './dto/auth.dto';
 
 @Controller('auth')
@@ -52,6 +54,16 @@ export class AuthController {
       this.getBearerToken(authorization),
       body,
     );
+  }
+
+  @Post('request-email-otp')
+  async requestEmailOtp(@Body() body: RequestEmailOtpDto) {
+    return this.authService.requestEmailOtp(body);
+  }
+
+  @Post('verify-email')
+  async verifyEmail(@Body() body: VerifyEmailDto) {
+    return this.authService.verifyEmail(body);
   }
 
   private getBearerToken(authorization?: string): string {

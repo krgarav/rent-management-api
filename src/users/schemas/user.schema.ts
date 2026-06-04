@@ -26,6 +26,18 @@ export class User {
   @Prop({ default: null, trim: true })
   photoUrl?: string;
 
+  @Prop({ default: false })
+  isEmailVerified: boolean;
+
+  @Prop({ default: null })
+  emailVerifiedAt?: Date;
+
+  @Prop({ default: null })
+  emailVerificationOtp?: string;
+
+  @Prop({ default: null })
+  emailVerificationOtpExpiresAt?: Date;
+
   @Prop({ required: true })
   passwordHash: string;
 }
@@ -40,11 +52,13 @@ UserSchema.set('toJSON', {
       _id?: { toString: () => string };
       id?: string;
       passwordHash?: string;
+      emailVerificationOtp?: string;
     };
 
     user.id = user._id?.toString();
     delete ret._id;
     delete user.passwordHash;
+    delete user.emailVerificationOtp;
 
     return ret;
   },

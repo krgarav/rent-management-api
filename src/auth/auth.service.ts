@@ -12,6 +12,8 @@ import {
   LoginDto,
   RefreshTokenDto,
   RegisterDto,
+  RequestEmailOtpDto,
+  VerifyEmailDto,
 } from './dto/auth.dto';
 
 const scrypt = promisify(scryptCallback);
@@ -43,6 +45,7 @@ export class AuthService {
   private readonly accessTokens = new Map<string, AccessTokenSession>();
   private readonly accessTokenTtlSeconds = 60 * 60;
   private readonly refreshTokenTtlMs = 7 * 24 * 60 * 60 * 1000;
+  private readonly emailOtpTtlMs = 10 * 60 * 1000;
 
   constructor(private readonly usersService: UsersService) {}
 
@@ -156,6 +159,77 @@ export class AuthService {
     return { success: true, user: updatedUser };
   }
 
+  async requestEmailOtp(
+    requestEmailOtpDto: RequestEmailOtpDto,
+  ): Promise<{ success: boolean; message: string; otp: string }> {
+    this.validateEmail(requestEmailOtpDto.email);
+
+    const user = await this.usersService.findByEmail(requestEmailOtpDto.email);
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (user.isEmailVerified) {
+      throw new BadRequestException('Email is already verified');
+    }
+
+    const otp = this.generateOtp();
+    const expiresAt = new Date(Date.now() + this.emailOtpTtlMs);
+
+    await this.usersService.setEmailVerificationOtp(
+      requestEmailOtpDto.email,
+      otp,
+      expiresAt,
+    );
+
+    return {
+      success: true,
+      message: 'Email verification OTP generated',
+      otp,
+    };
+  }
+
+  async verifyEmail(
+    verifyEmailDto: VerifyEmailDto,
+  ): Promise<{ success: boolean; user: PublicUser }> {
+    this.validateEmail(verifyEmailDto.email);
+
+    const user = await this.usersService.findByEmail(verifyEmailDto.email);
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (user.isEmailVerified) {
+      return {
+        success: true,
+        user: this.usersService.toPublicUser(user),
+      };
+    }
+
+    if (
+      !user.emailVerificationOtp ||
+      user.emailVerificationOtp !== verifyEmailDto.otp
+    ) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    if (
+      !user.emailVerificationOtpExpiresAt ||
+      user.emailVerificationOtpExpiresAt.getTime() < Date.now()
+    ) {
+      throw new BadRequestException('OTP has expired');
+    }
+
+    const verifiedUser = await this.usersService.verifyEmail(user.id);
+
+    return {
+      success: true,
+      user: verifiedUser,
+    };
+  }
+
   private createSession(userId: string): AuthTokens {
     const accessToken = randomBytes(32).toString('hex');
     const refreshToken = randomBytes(48).toString('hex');
@@ -257,5 +331,9 @@ export class AuthService {
     if (role && !Object.values(UserRole).includes(role)) {
       throw new BadRequestException('Role must be tenant or admin');
     }
+  }
+
+  private generateOtp(): string {
+    return randomBytes(4).readUInt32BE(0).toString().slice(0, 6).padStart(6, '0');
   }
 }

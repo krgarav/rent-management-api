@@ -9,12 +9,19 @@ export interface StoredUser {
   email: string;
   role: UserRole;
   photoUrl?: string;
+  isEmailVerified: boolean;
+  emailVerifiedAt?: Date;
+  emailVerificationOtp?: string;
+  emailVerificationOtpExpiresAt?: Date;
   passwordHash: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type PublicUser = Omit<StoredUser, 'passwordHash'>;
+export type PublicUser = Omit<
+  StoredUser,
+  'passwordHash' | 'emailVerificationOtp' | 'emailVerificationOtpExpiresAt'
+>;
 
 @Injectable()
 export class UsersService {
@@ -79,6 +86,56 @@ export class UsersService {
     return this.toPublicUser(user);
   }
 
+  async setEmailVerificationOtp(
+    email: string,
+    otp: string,
+    expiresAt: Date,
+  ): Promise<PublicUser> {
+    const user = await this.userModel
+      .findOneAndUpdate(
+        { email: email.toLowerCase() },
+        {
+          emailVerificationOtp: otp,
+          emailVerificationOtpExpiresAt: expiresAt,
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      )
+      .exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return this.toPublicUser(user);
+  }
+
+  async verifyEmail(id: string): Promise<PublicUser> {
+    const user = await this.userModel
+      .findByIdAndUpdate(
+        id,
+        {
+          isEmailVerified: true,
+          emailVerifiedAt: new Date(),
+          emailVerificationOtp: null,
+          emailVerificationOtpExpiresAt: null,
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      )
+      .exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return this.toPublicUser(user);
+  }
+
   toPublicUser(user: UserDocument | StoredUser): PublicUser {
     const storedUser = this.toStoredUser(user);
 
@@ -88,6 +145,8 @@ export class UsersService {
       email: storedUser.email,
       role: storedUser.role,
       photoUrl: storedUser.photoUrl,
+      isEmailVerified: storedUser.isEmailVerified,
+      emailVerifiedAt: storedUser.emailVerifiedAt,
       createdAt: storedUser.createdAt,
       updatedAt: storedUser.updatedAt,
     };
@@ -100,6 +159,10 @@ export class UsersService {
       email: user.email,
       role: user.role,
       photoUrl: user.photoUrl,
+      isEmailVerified: user.isEmailVerified,
+      emailVerifiedAt: user.emailVerifiedAt,
+      emailVerificationOtp: user.emailVerificationOtp,
+      emailVerificationOtpExpiresAt: user.emailVerificationOtpExpiresAt,
       passwordHash: user.passwordHash,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
