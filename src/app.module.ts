@@ -6,6 +6,8 @@ import { OllamaModule } from './ollama/ollama.module';
 import { AuthModule } from './auth/auth.module';
 import 'dotenv/config';
 import { UserDetailModule } from './user-details/user-detail.module';
+import { BillModule } from './Bills/bill.module';
+import { PropertyModule } from './property/property.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
@@ -16,6 +18,8 @@ import { UserDetailModule } from './user-details/user-detail.module';
     UserDetailModule,
     OllamaModule,
     AuthModule,
+    BillModule,
+    PropertyModule,
   ],
   controllers: [],
   providers: [],
