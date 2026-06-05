@@ -9,10 +9,6 @@ export class Property {
   createdAt: Date;
   updatedAt: Date;
 
-  // Owner / landlord
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  ownerId: Types.ObjectId;
-
   // Basic info
   @Prop({ required: true, trim: true })
   name: string;

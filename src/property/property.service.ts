@@ -16,7 +16,6 @@ export class PropertyService {
   async create(dto: CreatePropertyDto): Promise<Property> {
     const created = new this.propertyModel({
       ...dto,
-      ownerId: new Types.ObjectId(dto.ownerId),
     });
 
     return created.save();
@@ -24,7 +23,7 @@ export class PropertyService {
 
   // GET ALL
   async findAll(): Promise<Property[]> {
-    return this.propertyModel.find().populate('ownerId');
+    return this.propertyModel.find();
   }
 
   // GET ONE

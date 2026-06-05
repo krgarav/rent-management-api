@@ -7,9 +7,6 @@ import {
 } from 'class-validator';
 
 export class CreatePropertyDto {
-  @IsMongoId()
-  ownerId: string;
-
   @IsNotEmpty()
   @IsString()
   name: string;
