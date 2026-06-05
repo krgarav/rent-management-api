@@ -5,6 +5,7 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
+  Param,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
@@ -20,6 +21,11 @@ export class UsersController {
   @Get('all-users')
   async getAllUsers() {
     return this.usersService.getAllUsers();
+  }
+
+  @Get(':id')
+  async getUserById(@Param()  {id }:any,){
+    return this.usersService.getUserById(id);
   }
 
   @Post('')
@@ -46,4 +52,7 @@ export class UsersController {
       media,
     };
   }
+
+
+  
 }

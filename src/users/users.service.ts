@@ -168,4 +168,8 @@ export class UsersService {
       updatedAt: user.updatedAt,
     };
   }
+
+  async getUserById(id){
+   return this.userModel.findById(id)
+  }
 }
