@@ -18,13 +18,13 @@ export class UsersController {
     private readonly mediaService: MediaService,
   ) {}
 
-  @Get('all-users')
+  @Get('tenants')
   async getAllUsers() {
-    return this.usersService.getAllUsers();
+    return this.usersService.getAllTenants();
   }
 
   @Get(':id')
-  async getUserById(@Param()  {id }:any,){
+  async getUserById(@Param() { id }: any) {
     return this.usersService.getUserById(id);
   }
 
@@ -52,7 +52,4 @@ export class UsersController {
       media,
     };
   }
-
-
-  
 }

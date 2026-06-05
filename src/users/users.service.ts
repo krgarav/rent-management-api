@@ -29,8 +29,13 @@ export class UsersService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async getAllUsers(): Promise<PublicUser[]> {
-    const users = await this.userModel.find().sort({ createdAt: -1 }).exec();
+  async getAllTenants(): Promise<PublicUser[]> {
+    const users = await this.userModel
+      .find({ role: UserRole.Tenant })
+      .select('name email role createdAt') // only what you need
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
 
     return users.map((user) => this.toPublicUser(user));
   }
@@ -169,7 +174,7 @@ export class UsersService {
     };
   }
 
-  async getUserById(id){
-   return this.userModel.findById(id)
+  async getUserById(id) {
+    return this.userModel.findById(id);
   }
 }
