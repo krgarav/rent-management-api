@@ -7,9 +7,7 @@ import { UpdateBillDto } from './dto/update-bill.dto';
 
 @Injectable()
 export class BillService {
-  constructor(
-    @InjectModel(Bill.name) private billModel: Model<BillDocument>,
-  ) {}
+  constructor(@InjectModel(Bill.name) private billModel: Model<BillDocument>) {}
 
   // CREATE
   async create(dto: CreateBillDto): Promise<Bill> {
