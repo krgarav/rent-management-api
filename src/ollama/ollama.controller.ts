@@ -1,3 +1,4 @@
+
 import { Body, Controller, Post } from '@nestjs/common';
 import { OllamaService } from './ollama.service';
 
@@ -14,8 +15,4 @@ export class OllamaController {
       response,
     };
   }
-
-  
-
-
 }
