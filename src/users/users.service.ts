@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument, UserRole } from './schemas/user.schema';
 
 export interface StoredUser {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   role: UserRole;
@@ -23,6 +23,31 @@ export type PublicUser = Omit<
   'passwordHash' | 'emailVerificationOtp' | 'emailVerificationOtpExpiresAt'
 >;
 
+type UserId = string | Types.ObjectId;
+
+type PublicUserSource = Pick<User, 'name' | 'email' | 'role'> &
+  Partial<
+    Pick<
+      User,
+      | 'photoUrl'
+      | 'isEmailVerified'
+      | 'emailVerifiedAt'
+      | 'createdAt'
+      | 'updatedAt'
+    >
+  > & {
+    _id: UserId;
+  };
+
+type StoredUserSource = PublicUserSource &
+  Pick<User, 'passwordHash'> &
+  Partial<
+    Pick<
+      User,
+      'emailVerificationOtp' | 'emailVerificationOtpExpiresAt'
+    >
+  >;
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -32,7 +57,7 @@ export class UsersService {
   async getAllTenants(): Promise<PublicUser[]> {
     const users = await this.userModel
       .find({ role: UserRole.Tenant })
-      .select('name email role createdAt') // only what you need
+      .select('_id name email role photoUrl isEmailVerified emailVerifiedAt createdAt updatedAt')
       .sort({ createdAt: -1 })
       .lean()
       .exec();
@@ -44,12 +69,14 @@ export class UsersService {
     name: string;
     email: string;
     passwordHash: string;
+    phone :number,
     role?: UserRole;
     photoUrl?: string;
   }): Promise<PublicUser> {
     const user = await this.userModel.create({
       name: data.name,
       email: data.email.toLowerCase(),
+      phone :data.phone,
       role: data.role ?? UserRole.Tenant,
       photoUrl: data.photoUrl,
       passwordHash: data.passwordHash,
@@ -141,25 +168,23 @@ export class UsersService {
     return this.toPublicUser(user);
   }
 
-  toPublicUser(user: UserDocument | StoredUser): PublicUser {
-    const storedUser = this.toStoredUser(user);
-
+  toPublicUser(user: PublicUserSource): PublicUser {
     return {
-      id: storedUser.id,
-      name: storedUser.name,
-      email: storedUser.email,
-      role: storedUser.role,
-      photoUrl: storedUser.photoUrl,
-      isEmailVerified: storedUser.isEmailVerified,
-      emailVerifiedAt: storedUser.emailVerifiedAt,
-      createdAt: storedUser.createdAt,
-      updatedAt: storedUser.updatedAt,
+      _id: this.toStringId(user._id),
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      photoUrl: user.photoUrl,
+      isEmailVerified: user.isEmailVerified ?? false,
+      emailVerifiedAt: user.emailVerifiedAt,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 
-  private toStoredUser(user: UserDocument | StoredUser): StoredUser {
+  private toStoredUser(user: StoredUserSource): StoredUser {
     return {
-      id: user.id,
+      _id: this.toStringId(user._id),
       name: user.name,
       email: user.email,
       role: user.role,
@@ -172,6 +197,10 @@ export class UsersService {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
+  }
+
+  private toStringId(id: UserId): string {
+    return id.toString();
   }
 
   async getUserById(id) {

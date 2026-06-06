@@ -63,10 +63,11 @@ export class AuthService {
       name: registerDto.name.trim(),
       email: registerDto.email,
       role: registerDto.role,
+      phone: registerDto.phone,
       photoUrl: registerDto.photoUrl?.trim(),
       passwordHash,
     });
-    const tokens = this.createSession(user.id);
+    const tokens = this.createSession(user._id);
 
     return { user, ...tokens };
   }
@@ -83,7 +84,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const tokens = this.createSession(user.id);
+    const tokens = this.createSession(user._id);
 
     return { user: this.usersService.toPublicUser(user), ...tokens };
   }
@@ -98,7 +99,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const tokens = this.createSession(user.id);
+    const tokens = this.createSession(user._id);
 
     return { user: this.usersService.toPublicUser(user), ...tokens };
   }
@@ -152,7 +153,7 @@ export class AuthService {
 
     const passwordHash = await this.hashPassword(changePasswordDto.newPassword);
     const updatedUser = await this.usersService.updatePassword(
-      user.id,
+      user._id,
       passwordHash,
     );
 
@@ -222,7 +223,7 @@ export class AuthService {
       throw new BadRequestException('OTP has expired');
     }
 
-    const verifiedUser = await this.usersService.verifyEmail(user.id);
+    const verifiedUser = await this.usersService.verifyEmail(user._id);
 
     return {
       success: true,

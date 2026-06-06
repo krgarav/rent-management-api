@@ -10,7 +10,6 @@ export enum UserRole {
 
 @Schema({ timestamps: true })
 export class User {
-  id: string;
   createdAt: Date;
   updatedAt: Date;
 
@@ -22,6 +21,9 @@ export class User {
 
   @Prop({ enum: UserRole, default: UserRole.Tenant })
   role: UserRole;
+
+  @Prop({ required: true, trim: true })
+  phone: number;
 
   @Prop({ default: null, trim: true })
   photoUrl?: string;
