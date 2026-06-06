@@ -8,6 +8,7 @@ import 'dotenv/config';
 import { UserDetailModule } from './user-details/user-detail.module';
 import { BillModule } from './Bills/bill.module';
 import { PropertyModule } from './property/property.module';
+import { TenantModule } from './tenant/tenant.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
@@ -20,6 +21,7 @@ import { PropertyModule } from './property/property.module';
     AuthModule,
     BillModule,
     PropertyModule,
+    TenantModule
   ],
   controllers: [],
   providers: [],
