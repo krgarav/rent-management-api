@@ -26,6 +26,18 @@ export class BillService {
     return bill;
   }
 
+
+async find(id: string) {
+  const userObjectId = new Types.ObjectId(id);
+
+  const bill = await this.billModel.find({ userId: userObjectId });
+
+  if (!bill || bill.length === 0) {
+    throw new NotFoundException('Bill not found');
+  }
+
+  return bill;
+}
   // UPDATE / EDIT ENTRY
   async update(id: string, dto: UpdateBillDto): Promise<Bill> {
     const bill = await this.billModel.findById(id);

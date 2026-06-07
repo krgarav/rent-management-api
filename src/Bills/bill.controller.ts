@@ -21,6 +21,11 @@ export class BillController {
     return this.billService.create(dto);
   }
 
+
+  @Get('tenant/:id')
+  findAll(@Param('id') id: string) {
+    return this.billService.find(id);
+  }
   // GET SINGLE BILL (for edit screen)
   @Get(':id')
   findOne(@Param('id') id: string) {

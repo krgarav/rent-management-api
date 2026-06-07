@@ -42,6 +42,10 @@ class ElectricBillDto {
 class RentDto {
   @IsOptional()
   @IsNumber()
+  dueAmount?: number;
+
+  @IsOptional()
+  @IsNumber()
   amount?: number;
 
   @IsOptional()

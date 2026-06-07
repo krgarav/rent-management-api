@@ -37,6 +37,10 @@ class ElectricBill {
 
 @Schema({ _id: false })
 class Rent {
+
+  @Prop({ default: 0 })
+  dueAmount: number;
+
   @Prop({ default: 0 })
   amount: number;
 
@@ -46,7 +50,7 @@ class Rent {
 
 @Schema({ timestamps: true })
 export class Bill {
-  id: string;
+  _id: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 
@@ -88,8 +92,6 @@ BillSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
   transform: (_doc, ret) => {
-    ret.id = ret._id?.toString();
-    delete ret._id;
     return ret;
   },
 });
