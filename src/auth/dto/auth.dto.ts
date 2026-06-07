@@ -5,6 +5,7 @@ export interface RegisterDto {
   email: string;
   password: string;
   phone: number;
+  propertyId?:string;
   role?: UserRole;
   photoUrl?: string;
 }

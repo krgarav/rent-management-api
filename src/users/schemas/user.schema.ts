@@ -42,26 +42,22 @@ export class User {
 
   @Prop({ required: true })
   passwordHash: string;
+
+  @Prop({
+    type: String,
+    default: null,
+    validate: {
+      validator: function (this: User, value: string) {
+        // if tenant → propertyId must exist and not be empty
+        if (this.role === UserRole.Tenant) {
+          return value != null && value.trim().length > 0;
+        }
+        return true;
+      },
+      message: 'propertyId is required for tenant users',
+    },
+  })
+  propertyId: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-
-UserSchema.set('toJSON', {
-  virtuals: true,
-  versionKey: false,
-  transform: (_doc, ret) => {
-    const user = ret as {
-      _id?: { toString: () => string };
-      id?: string;
-      passwordHash?: string;
-      emailVerificationOtp?: string;
-    };
-
-    user.id = user._id?.toString();
-    delete ret._id;
-    delete user.passwordHash;
-    delete user.emailVerificationOtp;
-
-    return ret;
-  },
-});

@@ -64,8 +64,10 @@ export class AuthService {
       email: registerDto.email,
       role: registerDto.role,
       phone: registerDto.phone,
+      
       photoUrl: registerDto.photoUrl?.trim(),
       passwordHash,
+      propertyId : registerDto.propertyId,
     });
     const tokens = this.createSession(user._id);
 

@@ -72,6 +72,7 @@ export class UsersService {
     phone :number,
     role?: UserRole;
     photoUrl?: string;
+    propertyId?:string;
   }): Promise<PublicUser> {
     const user = await this.userModel.create({
       name: data.name,
@@ -80,6 +81,7 @@ export class UsersService {
       role: data.role ?? UserRole.Tenant,
       photoUrl: data.photoUrl,
       passwordHash: data.passwordHash,
+      propertyId : data.propertyId
     });
 
     return this.toPublicUser(user);
