@@ -81,3 +81,12 @@ Rules:
 - If the request is not for template creation, emit one line only:
   {"type":"user_generic","reply_message":"<short reply>"}
 `;
+
+export type AiTemplateStreamQuestion = {
+  id: string;
+  question: string;
+  options: { id: string; label: string }[];
+  multiSelect?: boolean;
+  allowCustom?: boolean;
+};
+
