@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
+
 import { AuthService } from './auth.service';
 import {
   ChangePasswordDto,
@@ -16,13 +18,27 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() body: RegisterDto) {
-    console.log(body)
+    console.log(body);
     return this.authService.register(body);
   }
 
   @Post('login')
-  async login(@Body() body: LoginDto) {
-    return this.authService.login(body);
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.login(loginDto);
+
+    res.cookie('access_token', result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    return {
+      user: result.user,
+    };
   }
 
   @Post('refresh')
