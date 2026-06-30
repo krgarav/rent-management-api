@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Headers, Post, Res } from '@nestjs/common';
-import { Response } from 'express';
+import { Body, Controller, Get, Headers, Post, Res, Req } from '@nestjs/common';
+import { Response, Request } from 'express';
 
 import { AuthService } from './auth.service';
 import {
@@ -58,8 +58,9 @@ export class AuthController {
   }
 
   @Get('me')
-  async me(@Headers('authorization') authorization: string) {
-    return this.authService.getProfile(this.getBearerToken(authorization));
+  async me(@Req() req: Request) {
+    const token = req.cookies.access_token;
+    return this.authService.getProfile(token);
   }
 
   @Post('change-password')
