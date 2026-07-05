@@ -22,6 +22,9 @@ export class Property {
   city?: string;
 
   @Prop({ trim: true })
+  type?: string;
+
+  @Prop({ trim: true })
   state?: string;
 
   @Prop({ trim: true })

@@ -11,6 +11,11 @@ export class CreatePropertyDto {
   @IsString()
   name: string;
 
+
+  @IsNotEmpty()
+  @IsString()
+  type:string;
+  
   @IsOptional()
   @IsString()
   description?: string;
